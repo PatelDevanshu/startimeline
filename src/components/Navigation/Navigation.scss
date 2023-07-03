@@ -1,0 +1,42 @@
+.navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+//   width: 100%;
+  margin-top: 1rem;
+}
+.navigation-calender {
+  height: 10rem;
+  display: none;
+  opacity: 0;
+}
+.navigation-calender.active {
+  display: block;
+  height: 30rem;
+  opacity: 1;
+  width: 80%;
+}
+.navigation-calender.active .navigation {
+  background-color: red;
+}
+.navigation.active {
+  height: 35rem;
+}
+
+.navigation-button {
+  display: flex;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  background-color: #efefef;
+  border: none;
+  font-size: 1.7rem;
+  img {
+    height: 2rem;
+    margin-left: 1rem;
+  }
+  &:hover {
+    background-color: #e3e3e3;
+  }
+}
