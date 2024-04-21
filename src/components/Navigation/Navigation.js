@@ -21,6 +21,7 @@ const Navigation = ({ props1, openCalender }) => {
         showCalendersHandler()
         handleDateformat(cal);
         fetchAxiosdata();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openCalender]);
 
 
