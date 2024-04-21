@@ -15,7 +15,8 @@ const db = sql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
-    database: "timeline"
+    database: "timeline",
+    dateStrings: true,
 })
 db.connect((err) => {
     if (err) {
@@ -27,48 +28,10 @@ db.connect((err) => {
     }
 })
 
-
-// app.get("/users", (req, res) => {
-//     console.log("in users");
-//     const q = "SELECT * FROM usertimeline";
-//     db.query(q, (err, data) => {
-//         if (err) return res.json(err);
-//         const userdata = res.json(data);
-//         return (
-//             // res.json(data)
-//             userdata
-//         )
-//     })
-// })
-
-// const uid = "user2";
-// app.get("/users/path", (req, res) => {
-//     console.log("in users");
-//     // const q = "SELECT * FROM usertimeline";
-//     const q = "SELECT latitude,longitude from usertimeline where userid=?";
-//     db.query(q, [uid], (err, data) => {
-//         console.log("in user path");
-//         if (err) return res.json(err);
-//         res.json(data);
-//     })
-// })
-// app.get("/users/time", (req, res) => {
-//     console.log("in timelinetable");
-//     // const q = "SELECT * FROM usertimeline";
-//     const q = "SELECT start_time,stop_time from timelinetable";
-//     db.query(q, (err, data) => {
-//         console.log("in user path");
-//         if (err) return res.json(err);
-//         res.json(data);
-//     })
-// })
-
 app.get("/users/useriddata", (req, res) => {
-    console.log("in users id");
     // const q = "SELECT * FROM usertimeline";
     const q = "SELECT id,user_name from users";
     db.query(q, (err, data) => {
-        console.log("in user path");
         if (err) return res.json(err);
         // console.log(data);
         res.json(data);
@@ -125,12 +88,9 @@ app.get('/', (req, res) => {
 // });
 app.post("/users/userData", (req, res) => {
     const userId = req.body;
-    console.log("usid : ", userId);
     let usid = Object.values(userId);
     let uid = usid[0];
     let udate = usid[1];
-    console.log("usid", uid);
-    console.log("usid", udate);
 
     const query = "SELECT distinct dt_userstimeline.date_entered, dt_userstimeline.latitude,dt_userstimeline.longitude FROM dt_userstimeline,users WHERE users.id=dt_userstimeline.assigned_user_id AND DATE (dt_userstimeline.date_entered)=? and users.id=? ORDER BY dt_userstimeline.date_entered asc "
     db.query(query, [udate, uid], (error, results) => {
@@ -152,9 +112,23 @@ app.post("/users/userData", (req, res) => {
     })
 })
 
+// Define your API endpoint
+app.get('/api/filterdata', (req, res) => {
+    // Read userdata.json file
+    fs.readFile('userdata.json', (err, data) => {
+        if (err) {
+            console.error('Error reading userdata.json:', err);
+            res.status(500).json({ error: 'Internal server error' });
+            return;
+        }
+        // Parse JSON data and send as response
+        const userdata = JSON.parse(data);
+        res.json(userdata);
+    });
+});
+
 
 app.get("/users", (req, res) => {
-
     return res.json(responseUserData);
 });
 app.listen(port, () => {

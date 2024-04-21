@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import calenderLogo from "../../assets/icons/calendar-line.svg"
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import "./Navigation.scss"
 import axios from 'axios';
+import { MapContext } from '../../Context';
+
 
 
 const Navigation = ({ props1, openCalender }) => {
     const [showCalender, setShowCalender] = useState(false)
     const [cal, setCal] = useState(new Date());
+    const { SetData } = useContext(MapContext);
+
 
 
     // const { updatedData } = useContext(MapContext);
@@ -31,7 +35,7 @@ const Navigation = ({ props1, openCalender }) => {
     };
     const fetchAxiosdata = async () => {
         if (props1 === '') {
-            console.log("no selected id");
+            alert("Please select a user");
         }
         else {
             await axios
@@ -46,8 +50,16 @@ const Navigation = ({ props1, openCalender }) => {
                 })
                 .then((res) => {
 
-                    console.log("USERDATA after post", res.data);
+                    let sortredData = res.data;
+                    sortredData.sort((a, b) => {
+                        const timeA = new Date(a.date_entered).getTime()
+                        const timeB = new Date(b.date_entered).getTime()
 
+                        return timeA - timeB
+
+                    });
+                    SetData(sortredData);
+                    setShowCalender(false);
                 })
                 .catch((error) => {
                     console.error("Error fetching user data:", error);

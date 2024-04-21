@@ -40,8 +40,6 @@ function Sidebar() {
   const handleUserid = async (event) => {
     setOpenCalender((prevState) => prevState = prevState + 1)
 
-    console.log("in handleid", event);
-
     setShowUsers((prevState) => {
       return !prevState
     })
