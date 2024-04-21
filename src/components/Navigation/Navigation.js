@@ -16,7 +16,7 @@ const Navigation = ({ props1, openCalender }) => {
 
 
     // const { updatedData } = useContext(MapContext);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         showCalendersHandler()
         handleDateformat(cal);
