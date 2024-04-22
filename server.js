@@ -9,10 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON body
 
-process.env.DB_HOST = 'localhost';
-process.env.DB_USER = 'root';
-process.env.DB_PASSWORD = '';
-process.env.DB_DATABASE = 'timeline';
+// process.env.DB_HOST = 'localhost';
+// process.env.DB_USER = 'root';
+// process.env.DB_PASSWORD = '';
+// process.env.DB_DATABASE = 'timeline';
 
 const dbHost = process.env.DB_HOST || 'localhost';
 const dbUser = process.env.DB_USER || 'root';
