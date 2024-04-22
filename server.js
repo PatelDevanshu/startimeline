@@ -52,7 +52,7 @@ app.get("/users/useriddata", (req, res) => {
 
 app.get('/', (req, res) => {
 
-    return res.json("From backend");
+    return res.json("From backend and port:", port);
 
 })
 
