@@ -1,0 +1,23 @@
+{
+    "name": "nodejs-express-mysql",
+    "version": "1.0.0",
+    "description": "Node.js project using Express.js and MySQL",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "keywords": [
+      "node",
+      "express",
+      "mysql"
+    ],
+    "author": "Devanshu",
+    "license": "ISC",
+    "dependencies": {
+      "cors": "^2.8.5",
+      "express": "^4.17.2",
+      "mysql": "^2.18.1",
+      "fs": "0.0.1-security"
+    }
+}
+  
