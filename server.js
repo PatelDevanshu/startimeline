@@ -14,10 +14,10 @@ process.env.DB_USER = 'root';
 process.env.DB_PASSWORD = '';
 process.env.DB_DATABASE = 'timeline';
 
-const dbHost = process.env.DB_HOST;
-const dbUser = process.env.DB_USER;
-const dbPassword = process.env.DB_PASSWORD;
-const dbDatabase = process.env.DB_DATABASE;
+const dbHost = process.env.DB_HOST || 'localhost';
+const dbUser = process.env.DB_USER || 'root';
+const dbPassword = process.env.DB_PASSWORD || '';
+const dbDatabase = process.env.DB_DATABASE || 'timeline';
 const port = process.env.DB_PORT || 4001;
 console.log("port", port);
 
