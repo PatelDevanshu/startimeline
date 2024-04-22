@@ -5,7 +5,6 @@ const fs = require('fs');
 let responseUserData = ''
 
 
-const port = 4001;
 const app = express();
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON body
@@ -14,11 +13,13 @@ process.env.DB_HOST = 'localhost';
 process.env.DB_USER = 'root';
 process.env.DB_PASSWORD = '';
 process.env.DB_DATABASE = 'timeline';
+process.env.DB_PORT = 4001;
 
 const dbHost = process.env.DB_HOST;
 const dbUser = process.env.DB_USER;
 const dbPassword = process.env.DB_PASSWORD;
 const dbDatabase = process.env.DB_DATABASE;
+const port = process.env.DB_PORT;
 
 const db = sql.createConnection({
     host: dbHost,
