@@ -20,13 +20,17 @@ const dbPassword = process.env.DB_PASSWORD || '';
 const dbDatabase = process.env.DB_DATABASE || 'timeline';
 const port = process.env.DB_PORT || 4001;
 console.log("port", port);
+console.log("dbHost", dbHost);
+console.log("dbUser", dbUser);
+console.log("dbPassword", dbPassword);
+console.log("dbDatabase", dbDatabase);
 
 const db = sql.createConnection({
     host: dbHost,
     user: dbUser,
     password: dbPassword,
     database: dbDatabase,
-    dateStrings: true,
+    dateStrings: true
 })
 db.connect((err) => {
     if (err) {
