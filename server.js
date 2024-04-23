@@ -101,13 +101,19 @@ app.get('/', (req, res) => {
 //     }
 // });
 app.post("/users/userData", (req, res) => {
-    const userId = req.body;
-    let usid = Object.values(userId);
-    let uid = usid[0];
-    let udate = usid[1];
+    console.log("req", req);
+    const { props1, dateFormat } = req.body;
+    console.log("props1:", props1);
+    console.log("dateFormat:", dateFormat);
+
+    let id = props1;
+    let date = dateFormat;
+
+    // let uid = usid[0];
+    // let udate = usid[1];
 
     const query = "SELECT distinct dt_userstimeline.date_entered, dt_userstimeline.latitude,dt_userstimeline.longitude FROM dt_userstimeline,users WHERE users.id=dt_userstimeline.assigned_user_id AND DATE (dt_userstimeline.date_entered)=? and users.id=? ORDER BY dt_userstimeline.date_entered asc "
-    db.query(query, [udate, uid], (error, results) => {
+    db.query(query, [date, id], (error, results) => {
         if (error) {
             console.error('Error fetching user data:', error);
             res.status(500).json({ error: 'Failed to fetch user data' });
