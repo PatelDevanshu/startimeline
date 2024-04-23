@@ -5,18 +5,31 @@ const fs = require('fs');
 let responseUserData = ''
 
 
-const port = 4001;
 const app = express();
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON body
+// process.env.DB_HOST = 'localhost';
+// process.env.DB_USER = 'root';
+// process.env.DB_PASSWORD = '';
+// process.env.DB_DATABASE = 'timeline';
 
+const dbHost = process.env.DB_HOST || 'localhost';
+const dbUser = process.env.DB_USER || 'root';
+const dbPassword = process.env.DB_PASSWORD || '';
+const dbDatabase = process.env.DB_DATABASE || 'timeline';
+const port = process.env.DB_PORT || 4001;
+console.log("port", port);
+console.log("dbHost", dbHost);
+console.log("dbUser", dbUser);
+console.log("dbPassword", dbPassword);
+console.log("dbDatabase", dbDatabase);
 
 const db = sql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "timeline",
-    dateStrings: true,
+    host: dbHost,
+    user: dbUser,
+    password: dbPassword,
+    database: dbDatabase,
+    dateStrings: true
 })
 db.connect((err) => {
     if (err) {
@@ -41,7 +54,7 @@ app.get("/users/useriddata", (req, res) => {
 
 app.get('/', (req, res) => {
 
-    return res.json("From backend");
+    return res.json(`From backend and port: ${port}`);
 
 })
 
@@ -87,13 +100,13 @@ app.get('/', (req, res) => {
 //     }
 // });
 app.post("/users/userData", (req, res) => {
-    const userId = req.body;
-    let usid = Object.values(userId);
-    let uid = usid[0];
-    let udate = usid[1];
+    const { props1, dateFormat } = req.body;
+
+    let id = props1;
+    let date = dateFormat;
 
     const query = "SELECT distinct dt_userstimeline.date_entered, dt_userstimeline.latitude,dt_userstimeline.longitude FROM dt_userstimeline,users WHERE users.id=dt_userstimeline.assigned_user_id AND DATE (dt_userstimeline.date_entered)=? and users.id=? ORDER BY dt_userstimeline.date_entered asc "
-    db.query(query, [udate, uid], (error, results) => {
+    db.query(query, [date, id], (error, results) => {
         if (error) {
             console.error('Error fetching user data:', error);
             res.status(500).json({ error: 'Failed to fetch user data' });

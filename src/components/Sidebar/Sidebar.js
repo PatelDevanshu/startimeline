@@ -21,7 +21,7 @@ function Sidebar() {
 
   useEffect(() => {
 
-    fetch("http://localhost:4001/users/useriddata")
+    fetch("https://startimeline.onrender.com/users/useriddata")
       .then((res) => res.json())
       .then((data) => setIddata(data))
       .catch((err) => console.log(err));
