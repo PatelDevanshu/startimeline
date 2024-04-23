@@ -25,7 +25,6 @@ function Sidebar() {
       .then((res) => res.json())
       .then((data) => setIddata(data))
       .catch((err) => console.log(err));
-
     setRenderTimeline(addressdata)
   }, [addressdata]);
 

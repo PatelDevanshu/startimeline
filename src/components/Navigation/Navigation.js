@@ -55,9 +55,7 @@ const Navigation = ({ props1, openCalender }) => {
                     sortredData.sort((a, b) => {
                         const timeA = new Date(a.date_entered).getTime()
                         const timeB = new Date(b.date_entered).getTime()
-
                         return timeA - timeB
-
                     });
                     SetData(sortredData);
                     setShowCalender(false);
