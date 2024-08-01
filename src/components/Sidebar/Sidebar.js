@@ -77,7 +77,7 @@ function Sidebar() {
             id="usercrd"
             value={selectedid}
           >
-            {arrUser.map((d) => {
+            {arrUser.length > 1 ? arrUser.map((d) => {
               return (
                 <li key={d.id} className={d.id === selectedid ? "active" : ''} onClick={() => handleUserid({
                   id: d.id,
@@ -86,7 +86,9 @@ function Sidebar() {
                   {d.uname}
                 </li>
               );
-            })}
+            }) :
+              <li key='0'>Loading...</li>
+            }
           </ul>
         }
       </div>
