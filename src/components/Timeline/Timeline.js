@@ -7,14 +7,10 @@ import "./Timeline.scss"
 function Timeline(props) {
     return (
         <li className='timeline-item'>
-
-
-
             <div className="start">
                 <h1>{props.title}</h1>
                 <p>{props.startAddress}</p>
             </div>
-
             <div className="timeline-details">
                 <div className="timeline-item__innerdata">
                     <div className="data-img">
@@ -22,9 +18,7 @@ function Timeline(props) {
                     </div>
                     <h2>{props.duration}</h2>
                 </div>
-
                 <div className="timeline-road"></div>
-
                 <div className="timeline-item__innerdata">
                     <div className="data-img">
                         <img src={motoLogo} alt="" />
@@ -36,10 +30,7 @@ function Timeline(props) {
                 <h1>{props.endTitle}</h1>
                 <p>{props.endAddress}</p>
             </div>
-
-
         </li>
-
     )
 }
 

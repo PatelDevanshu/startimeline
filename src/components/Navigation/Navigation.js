@@ -6,24 +6,19 @@ import "./Navigation.scss"
 import axios from 'axios';
 import { MapContext } from '../../Context';
 
-
-
 const Navigation = ({ props1, openCalender }) => {
-    const [showCalender, setShowCalender] = useState(false)
+    const [showCalender, setShowCalender] = useState(true)
     const [cal, setCal] = useState(new Date());
     const { SetData } = useContext(MapContext);
-
-
 
     // const { updatedData } = useContext(MapContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         showCalendersHandler()
         handleDateformat(cal);
-        fetchAxiosdata();
+        // fetchAxiosdata();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openCalender]);
-
 
     let dateFormat;
 
@@ -32,7 +27,6 @@ const Navigation = ({ props1, openCalender }) => {
         const month = String(event.getMonth() + 1).padStart(2, 0);
         const date = String(event.getDate()).padStart(2, 0);
         dateFormat = `${year}-${month}-${date}`;
-
     };
     const fetchAxiosdata = async () => {
         if (props1 === '') {
@@ -64,9 +58,7 @@ const Navigation = ({ props1, openCalender }) => {
                     console.error("Error fetching user data:", error);
                 });
         }
-
     }
-
 
     const showCalendersHandler = async () => {
 
@@ -80,20 +72,11 @@ const Navigation = ({ props1, openCalender }) => {
         fetchAxiosdata();
     };
 
-
-
-
-
-
     return (
         <div className='navigation'>
-
-
             <button className='navigation-button' onClick={showCalendersHandler}>Select Date  <img src={calenderLogo} alt="" /> </button>
             <Calendar className={showCalender ? "navigation-calender active" : "navigation-calender"} onChange={handleCalendar} value={cal} />
-
         </div>
-
     )
 }
 

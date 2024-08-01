@@ -5,12 +5,12 @@
   justify-content: center;
   gap: 1rem;
 //   width: 100%;
-  margin-top: 1rem;
 }
 .navigation-calender {
   height: 10rem;
   display: none;
   opacity: 0;
+  font-size: 1.3rem;
 }
 .navigation-calender.active {
   display: block;
@@ -23,6 +23,10 @@
 }
 .navigation.active {
   height: 35rem;
+}
+
+.react-calendar__month-view__weekdays__weekday{
+  display: none;
 }
 
 .navigation-button {

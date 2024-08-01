@@ -1,20 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.3fd43158.css",
-    "main.js": "/static/js/main.15a7045f.js",
+    "main.css": "/static/css/main.31aa2b1f.css",
+    "main.js": "/static/js/main.c1a2f4b0.js",
     "static/js/787.dfa45a26.chunk.js": "/static/js/787.dfa45a26.chunk.js",
-    "static/media/dreamer.png": "/static/media/dreamer.4290e3901f9cf763b017.png",
+    "static/media/Usertimeline_logo.png": "/static/media/Usertimeline_logo.b04c269d3903bdbf1106.png",
+    "static/media/Usertimeline.png": "/static/media/Usertimeline.a359052ee9ea39bd1505.png",
     "static/media/motorbike-line.svg": "/static/media/motorbike-line.10520bdb458aad47f7423b33640b516c.svg",
     "index.html": "/index.html",
     "static/media/user-line.svg": "/static/media/user-line.96daa6ff21334e53e195ec750656ab5f.svg",
     "static/media/time-line.svg": "/static/media/time-line.2a0cce22dd224c991aa95ca733c9f366.svg",
     "static/media/calendar-line.svg": "/static/media/calendar-line.d31d84ec9f19b53b51ce86e57dd17a83.svg",
-    "main.3fd43158.css.map": "/static/css/main.3fd43158.css.map",
-    "main.15a7045f.js.map": "/static/js/main.15a7045f.js.map",
+    "main.31aa2b1f.css.map": "/static/css/main.31aa2b1f.css.map",
+    "main.c1a2f4b0.js.map": "/static/js/main.c1a2f4b0.js.map",
     "787.dfa45a26.chunk.js.map": "/static/js/787.dfa45a26.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3fd43158.css",
-    "static/js/main.15a7045f.js"
+    "static/css/main.31aa2b1f.css",
+    "static/js/main.c1a2f4b0.js"
   ]
 }

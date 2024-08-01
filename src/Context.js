@@ -4,12 +4,10 @@ export const MapContext = createContext();
 
 export const MapProvider = ({ children }) => {
     const [addressdata, setAddressdata] = useState(null);
-    const [totalSum, setTotalSum] = useState({})
-
-    const [timelineData, setTimelineData] = useState([''])
+    const [totalSum, setTotalSum] = useState({});
+    const [timelineData, setTimelineData] = useState(['']);
 
     // useEffect(() => {
-
     //     // fetch("https://crm.star-ind.com/index.php?entryPoint=dtTimeline")
     //     fetch("http://localhost:4001/api/filterdata")
     //         .then((res) => res.json())
@@ -26,11 +24,6 @@ export const MapProvider = ({ children }) => {
     //             setTimelineData(sortredData)
     //         })
     //         .catch(err => console.log(err))
-
-
-
-
-
     // }, [])
     const totals = (data) => {
         setTotalSum(data)
