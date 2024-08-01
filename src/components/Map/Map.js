@@ -4,18 +4,14 @@ import './Map.scss'
 import { MapContext } from '../../Context';
 import { v4 as uuidv4 } from 'uuid';
 
-
 const Map = () => {
-
-
+    const [mapData, setMapData] = useState([]);
     const { timelineData } = useContext(MapContext);
     const { SendAddress } = useContext(MapContext);
     const { totals } = useContext(MapContext);
     // const intitialcenter = { lat: 20.39012149793167, lng: 72.90738269251017 }
     const intitialcenter = { lat: 20.5937, lng: 78.9629 }
     let timelinesum = [];
-
-    const [mapData, setMapData] = useState([]);
 
     useEffect(() => {
         setMapData(timelineData);
@@ -25,13 +21,9 @@ const Map = () => {
         return { lat: d.latitude ? d.latitude : "", lng: d.longitude ? d.longitude : "" };
     });
 
-
-    let path = [...usrpath]
-
+    let path = [...usrpath];
     let Distancecount = 0
     let DurationCount = 0;
-
-
 
     const handleApiLoaded = (map, maps) => {
         if (path.length > 1) {
@@ -51,15 +43,8 @@ const Map = () => {
                 });
             });
 
-
-
-
-
-
             //NEw map
-
             const batchSize = 25; // Maximum number of coordinates per batch
-
 
             // // Divide the path into batches
             function createCoordinateBatches() {
@@ -73,26 +58,19 @@ const Map = () => {
 
             // // Make the Directions API requests for each batch
             function makeDirectionsRequests(batches) {
-
                 const directionsService = new maps.DirectionsService();
                 const results = [];
-
                 let completedRequests = 0;
 
                 batches.forEach((batch, index) => {
-
                     const waypoints = batch.map(({ lat, lng }) => {
-
                         const obj = {
                             location: {
                                 lat: lat, lng: lng
                             },
                             stopover: true,
                         }
-
                         return obj;
-
-
                     });
 
                     directionsService.route(
@@ -103,9 +81,7 @@ const Map = () => {
                             optimizeWaypoints: false, // Disable optimizing waypoints to maintain the order
                             travelMode: maps.TravelMode.DRIVING,
                         },
-
                         (result, status) => {
-
                             if (status === maps.DirectionsStatus.OK) {
                                 results[index] = result;
                                 const legs = result.routes[0].legs;
@@ -138,7 +114,6 @@ const Map = () => {
                                 totalDuration: convertSecondsToHours(DurationCount)
                             })
 
-
                             completedRequests++;
 
                             if (completedRequests === batches.length) {
@@ -154,16 +129,12 @@ const Map = () => {
                 const minutes = Math.floor((seconds % 3600) / 60); // Calculate the remaining minutes
 
                 return hours + ":" + (minutes < 10 ? "0" : "") + minutes; // Format the result as "hours.minutes"
-
-
             }
-
 
             // // Merge the results of the Directions API requests
             function mergeResultsAndRender(results) {
                 let bounds = new maps.LatLngBounds();
                 // console.log(bounds.union());
-
 
                 const mergedRoute = {
                     routes: [],
@@ -193,7 +164,6 @@ const Map = () => {
                 makeDirectionsRequests(coordinateBatches);
             }
             handleRouting();
-
         }
         else {
             totals({
@@ -207,7 +177,6 @@ const Map = () => {
 
     return (
         <div className='map'>
-
             <GoogleMapReact
                 bootstrapURLKeys={{
                     key: "AIzaSyA5uemAs2WR9KQkdVReA9VRcaZ8jA6ZLAM"
@@ -218,11 +187,8 @@ const Map = () => {
                 yesIWantToUseGoogleMapApiInternals={true}
                 onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
             >
-
             </GoogleMapReact>
-
         </div>
-
     )
 }
 

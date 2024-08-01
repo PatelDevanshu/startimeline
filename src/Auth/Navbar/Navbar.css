@@ -1,0 +1,12 @@
+.navbar{
+    min-height: 12vh;
+    background-color: #166387;
+}
+.navbar .navbar_logo{
+    padding-left: 20px;
+}
+.navbar .logo_img{
+    min-width: 20vw;
+    height: 8vh;
+    border-radius: 5px;
+}

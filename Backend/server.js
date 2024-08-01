@@ -4,7 +4,6 @@ const sql = require('mysql');
 const fs = require('fs');
 let responseUserData = ''
 
-
 const app = express();
 app.use(cors());
 app.use(express.json()); // Middleware to parse JSON body
@@ -19,9 +18,6 @@ const dbPassword = process.env.DB_PASSWORD || '';
 const dbDatabase = process.env.DB_DATABASE || 'timeline';
 const port = process.env.DB_PORT || 4001;
 console.log("port", port);
-console.log("dbHost", dbHost);
-console.log("dbUser", dbUser);
-console.log("dbPassword", dbPassword);
 console.log("dbDatabase", dbDatabase);
 
 const db = sql.createConnection({
@@ -39,6 +35,22 @@ db.connect((err) => {
     else {
         console.log("Connected to Database");
     }
+});
+
+app.post("/auth/login", (req, res) => {
+    const { username, password } = req.body;
+
+    let isAuthenticated = false;
+    let user = "Unauthorized";
+    if (username === "admin" && password === "admin123") {
+        isAuthenticated = true;
+        user = "admin";
+    } else {
+        isAuthenticated = false;
+        user = "Unauthorized";
+    }
+    let userdata = { isAuthenticated, user };
+    res.json(userdata);
 })
 
 app.get("/users/useriddata", (req, res) => {
@@ -51,13 +63,11 @@ app.get("/users/useriddata", (req, res) => {
     })
 })
 
-
 app.get('/', (req, res) => {
 
     return res.json(`From backend and port: ${port}`);
 
 })
-
 
 // app.all("/users/userData", (req, res) => {
 //     if (req.method === "POST") {
@@ -140,12 +150,9 @@ app.get('/api/filterdata', (req, res) => {
     });
 });
 
-
 app.get("/users", (req, res) => {
     return res.json(responseUserData);
 });
 app.listen(port, () => {
     console.log("on port ", port)
 })
-
-
