@@ -15,7 +15,7 @@ const Navigation = ({ props1, openCalender }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (openCalender > 0) {
-            showCalendersHandler();
+            setShowCalender(true);
         }
         handleDateformat(cal);
         // fetchAxiosdata();
@@ -63,9 +63,7 @@ const Navigation = ({ props1, openCalender }) => {
     }
 
     const showCalendersHandler = async () => {
-        setShowCalender((prevState) => {
-            return !prevState
-        });
+        setShowCalender(prevState => !prevState);
     }
     const handleCalendar = async (event) => {
         setCal(event);
