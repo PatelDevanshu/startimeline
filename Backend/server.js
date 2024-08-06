@@ -79,7 +79,7 @@ app.get('/', (req, res) => {
 //         console.log("usid", uid);
 //         console.log("usid", udate);
 
-//         const query = "SELECT distinct dt_userstimeline.date_entered, dt_userstimeline.latitude,dt_userstimeline.longitude FROM dt_userstimeline,users WHERE users.id=dt_userstimeline.assigned_user_id AND DATE (dt_userstimeline.date_entered)=? and users.id=? ORDER BY dt_userstimeline.date_entered asc "
+//         const query = "SELECT distinct dt_userstimeline1.date_entered, dt_userstimeline1.latitude,dt_userstimeline1.longitude FROM dt_userstimeline1,users WHERE users.id=dt_userstimeline1.assigned_user_id AND DATE (dt_userstimeline1.date_entered)=? and users.id=? ORDER BY dt_userstimeline1.date_entered asc "
 //         db.query(query, [udate, uid], (error, results) => {
 //             if (error) {
 //                 console.error('Error fetching user data:', error);
@@ -115,7 +115,7 @@ app.post("/users/userData", (req, res) => {
     let id = props1;
     let date = dateFormat;
 
-    const query = "SELECT distinct dt_userstimeline.date_entered, dt_userstimeline.latitude,dt_userstimeline.longitude FROM dt_userstimeline,users WHERE users.id=dt_userstimeline.assigned_user_id AND DATE (dt_userstimeline.date_entered)=? and users.id=? ORDER BY dt_userstimeline.date_entered asc "
+    const query = "SELECT distinct dt_userstimeline1.date_entered, dt_userstimeline1.latitude,dt_userstimeline1.longitude FROM dt_userstimeline1,users WHERE users.id=dt_userstimeline1.assigned_user_id AND DATE (dt_userstimeline1.date_entered)=? and users.id=? ORDER BY dt_userstimeline1.date_entered asc "
     db.query(query, [date, id], (error, results) => {
         if (error) {
             console.error('Error fetching user data:', error);

@@ -14,10 +14,9 @@ function Sidebar() {
   const [iddata, setIddata] = useState([""]);
   const [selectedid, setSelectedid] = useState("");
   const [userName, setUserName] = useState(null)
-  const { addressdata } = useContext(MapContext);
-  const { totalSum } = useContext(MapContext)
   const [renderTimeline, setRenderTimeline] = useState(null)
   const [openCalender, setOpenCalender] = useState(0);
+  const { addressdata, totalSum, loader, error } = useContext(MapContext);
   const { logout } = useContext(AuthContext);
 
   useEffect(() => {
@@ -109,8 +108,10 @@ function Sidebar() {
         </div>
       </div>}
 
+      {loader ? <div className='timeline_msg'>Loading...</div> : ''}
+      {error ? <div className='timeline_msg'>User had travlled within 5kms.</div> : ''}
       <ul className='timeline'>
-        {renderTimeline && renderTimeline.map((d) =>
+        {renderTimeline && !loader && renderTimeline.map((d) =>
           <Timeline key={d.id} startAddress={d.startAddress} endAddress={d.endAddress} duration={d.duration} distance={d.distance} />
         )}
       </ul>
