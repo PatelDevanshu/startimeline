@@ -43,7 +43,7 @@
     // align-items: center;
     position: absolute;
     text-align: center;
-    border-radius: 5px;
+    border-radius: 10px;
     background-color: #fff;
     top: 8%;
     right: 10%;
@@ -62,7 +62,7 @@
     li {
       font-size: 1.4rem;
       font-weight: 600;
-      padding: 1rem 2rem;
+      padding: 1.5rem 2rem;
       border-bottom: 1px solid black;
       width: 100%;
       transition: all .3s ease;
@@ -78,7 +78,10 @@
 .sidebar #usercrd{
   padding-left: 0;
 }
-
+.timeline_msg{
+  text-align: center;
+  font-size: 1.7rem;
+}
 .active{
   background-color: #21b2f6;
   color: #fff;

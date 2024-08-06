@@ -1,52 +1,60 @@
-import React, { useContext, useEffect, useState } from 'react'
-import GoogleMapReact from 'google-map-react'
-import './Map.scss'
+// src/components/MapComponent.js
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import polyline from 'polyline-encoded';
 import { MapContext } from '../../Context';
+import pLimit from 'p-limit';
 import { v4 as uuidv4 } from 'uuid';
+import RoutePolyline from './Polyline';
 
-const Map = () => {
+const MapComponent = () => {
+    const [route, setRoute] = useState([]);
     const [mapData, setMapData] = useState([]);
-    const { timelineData } = useContext(MapContext);
-    const { SendAddress } = useContext(MapContext);
-    const { totals } = useContext(MapContext);
+    const [waypoints, setWaypoints] = useState([]);
+    const [showRoute, setShowRoute] = useState(false);
+    const { timelineData, SendAddress, totals, SetLoader, SetError } = useContext(MapContext);
     // const intitialcenter = { lat: 20.39012149793167, lng: 72.90738269251017 }
     const intitialcenter = { lat: 20.5937, lng: 78.9629 }
-    let timelinesum = [];
+    const limit = pLimit(2);
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     useEffect(() => {
         setMapData(timelineData);
     }, [timelineData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        fetchRoute();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mapData]);
 
-    let usrpath = mapData.map((d) => {
-        return { lat: d.latitude ? d.latitude : "", lng: d.longitude ? d.longitude : "" };
-    });
 
-    let path = [...usrpath];
-    let Distancecount = 0
-    let DurationCount = 0;
+    const fetchRoute = useCallback(async () => {
+        let userpath = mapData.map((value) => {
+            return { lat: value.latitude ? value.latitude : '', lng: value.longitude ? value.longitude : '' };
+        });
 
-    const handleApiLoaded = (map, maps) => {
-        if (path.length > 1) {
-            path.map((x) => {
-                return new maps.Marker({
-                    position: x,
-                    map: map,
-                    options: {
-                        icon: {
-                            path: window.google.maps.SymbolPath.CIRCLE,
-                            scale: 8,
-                            fillColor: "blue",
-                            fillOpacity: 1,
-                            strokeWeight: 2,
-                        },
-                    },
-                });
-            });
+        let path = [...userpath] || [];
 
-            //NEw map
-            const batchSize = 25; // Maximum number of coordinates per batch
+        if (path.length <= 1) {
+            totals({
+                totalDistance: '0.0',
+                totalDuration: '0.0'
+            })
+            setRoute([]);
+            setShowRoute(false);
+            SendAddress([]);
+            SetError(false);
+            SetLoader(false);
+            return;
+        }
+        else {
+            SetError(false);
+            SetLoader(false);
+            setWaypoints(path);
 
-            // // Divide the path into batches
+            const batchSize = 80;
+
             function createCoordinateBatches() {
                 const batches = [];
                 for (let i = 0; i < path.length; i += batchSize) {
@@ -56,140 +64,255 @@ const Map = () => {
                 return batches;
             }
 
-            // // Make the Directions API requests for each batch
-            function makeDirectionsRequests(batches) {
-                const directionsService = new maps.DirectionsService();
-                const results = [];
-                let completedRequests = 0;
+            let coordinateBatches = createCoordinateBatches();
+            let routeResults = [];
+            let getCords_search_indexes = [];
+            let search_leg_distance = [];
+            let search_leg_time = [];
+            let allBatchDistance = 0.0;
+            let allBatchDuration = 0.0;
 
-                batches.forEach((batch, index) => {
-                    const waypoints = batch.map(({ lat, lng }) => {
-                        const obj = {
-                            location: {
-                                lat: lat, lng: lng
-                            },
-                            stopover: true,
-                        }
-                        return obj;
+            const routeResultPromises = coordinateBatches.map(async (batch, index) => {
+                let result = await postRoute(batch);
+                if (result) {
+                    const totalSums = await getTotalSums(result.leg_distance, result.leg_time);
+                    allBatchDistance += parseFloat(totalSums.totalDistance);
+                    allBatchDuration += parseFloat(totalSums.totalDuration);
+
+                    if (totalSums.search_leg_distance.length > 1) {
+                        search_leg_distance.push(...totalSums.search_leg_distance);
+                        search_leg_time.push(...totalSums.search_leg_time);
+                    }
+
+                    const getCords = getCoordinates(batch, totalSums.start_indexes);
+                    getCords_search_indexes.push(...getCords);
+                    routeResults.push(...result.decodedPoints);
+                }
+            });
+
+            await Promise.all(routeResultPromises);
+            setRoute(routeResults);
+            setShowRoute(true);
+            let allBatchDurationInHours = convertMillisecondsToHours(allBatchDuration);
+            totals({
+                totalDistance: allBatchDistance.toFixed(2) || '0.0',
+                totalDuration: allBatchDurationInHours || '0.0'
+            })
+
+            if (getCords_search_indexes.length > 1) {
+                const uniqueCoordinates = getUniqueCordinates(getCords_search_indexes);
+
+                if (uniqueCoordinates.length > 0) {
+                    SetLoader(true);
+                    const addressesArray = await fetchAddresses(uniqueCoordinates);
+
+                    const coordToAddressMap = new Map();
+                    uniqueCoordinates.forEach((coords, index) => {
+                        const key = `${coords[0]},${coords[1]}`;
+                        coordToAddressMap.set(key, addressesArray[index]?.display_name || 'No data');
                     });
 
-                    directionsService.route(
-                        {
-                            origin: waypoints[0].location, // {lat:75474,lng:295}
-                            destination: waypoints[waypoints.length - 1].location, // {lat:75474,lng:295}
-                            waypoints: waypoints.slice(1, -1),
-                            optimizeWaypoints: false, // Disable optimizing waypoints to maintain the order
-                            travelMode: maps.TravelMode.DRIVING,
-                        },
-                        (result, status) => {
-                            if (status === maps.DirectionsStatus.OK) {
-                                results[index] = result;
-                                const legs = result.routes[0].legs;
-                                legs.forEach((leg) => {
+                    const timelineAddress = mapAddressesBackToData(getCords_search_indexes, coordToAddressMap);
 
-                                    // Distancecount += leg.distance.value;
-                                    // DurationCount += leg.duration.value;
+                    const timelineData = search_leg_distance.map((distance, index) => ({
+                        startAddress: timelineAddress[index]?.start_address || 'No data',
+                        endAddress: timelineAddress[index]?.end_address || 'No data',
+                        duration: search_leg_time[index] || 'No data',
+                        distance: distance || 'No data',
+                        id: uuidv4()
+                    }));
 
-                                    // console.log("leg,count", leg.distance.value)
-                                    Distancecount += leg.distance.value;
-                                    DurationCount += leg.duration.value;
-                                    // console.log("distancecout", Distancecount);
-                                    // console.log("durationcout", DurationCount);
-                                })
-                                let particularTimeline = legs.filter((leg) => leg.distance.value >= 100).map((leg) => ({
-                                    startAddress: leg.start_address,
-                                    endAddress: leg.end_address,
-                                    duration: leg.duration.text,
-                                    distance: leg.distance.text,
-                                    id: uuidv4()
-                                }))
-                                timelinesum = timelinesum.concat(particularTimeline);
-                                SendAddress(timelinesum)
-                            } else {
-                                console.error(`Directions request failed for batch at index ${index}`);
-                            }
-                            totals({
-                                totalDistance: (Distancecount / 1000).toFixed(2),
-                                // totalDuration: (DurationCount / 3600).toFixed(2)
-                                totalDuration: convertSecondsToHours(DurationCount)
-                            })
-
-                            completedRequests++;
-
-                            if (completedRequests === batches.length) {
-                                mergeResultsAndRender(results);
-                            }
-                        }
-                    );
-                })
+                    SendAddress(timelineData);
+                    SetLoader(false);
+                }
             }
 
-            function convertSecondsToHours(seconds) {
-                const hours = Math.floor(seconds / 3600); // Calculate the whole number of hours
-                const minutes = Math.floor((seconds % 3600) / 60); // Calculate the remaining minutes
-
-                return hours + ":" + (minutes < 10 ? "0" : "") + minutes; // Format the result as "hours.minutes"
+            else {
+                SendAddress([]);
+                SetError(true);
             }
+            return;
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mapData, SendAddress, totals]);
 
-            // // Merge the results of the Directions API requests
-            function mergeResultsAndRender(results) {
-                let bounds = new maps.LatLngBounds();
-                // console.log(bounds.union());
+    function convertMillisecondsToHours(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-                const mergedRoute = {
-                    routes: [],
-                };
+        return hours + ":" + (minutes < 10 ? "0" : "") + minutes; // Format the result as "hours:minutes"
+    }
 
-                results.forEach((result) => {
-                    mergedRoute.routes = mergedRoute.routes.concat(result);
-                });
+    const postRoute = async (waypoints) => {
+        let coordinates = waypoints.map((value) => [value.lng, value.lat]);
+        const query = new URLSearchParams({
+            key: 'a249d870-e981-437f-a186-b11ae3309dc6'
+        }).toString();
 
-                mergedRoute.routes.forEach((route) => {
-                    let resultBounds = route.routes[0].bounds;
-                    const directionsRenderer = new maps.DirectionsRenderer({
-                        preserveViewport: true  //Added to preserve viewport
-                    });
-                    directionsRenderer.setDirections(route);
-                    directionsRenderer.setMap(map); // Replace "yourMapObject" with your actual map object
-                    bounds.union(resultBounds)
-                    // console.log(bounds.union(resultBounds))
-                    // bounds.extend(resultBounds.getNorthEast());
-                    // bounds.extend(resultBounds.getSouthWest());
-                    // map.setZoom(15)
-                    map.fitBounds(bounds);
-                })
+        try {
+            const request = await fetch(
+                `https://graphhopper.com/api/1/route?${query}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        profile: 'car',
+                        points: coordinates,
+                        details: ['leg_distance', 'leg_time'],
+                    })
+                }
+            );
+            if (request.ok) {
+                const { paths } = await request.json();
+                if (paths && paths.length > 0) {
+                    const path = paths[0];
+                    const encodedPoints = paths[0].points;
+                    const decodedPoints = polyline.decode(encodedPoints);
+
+                    const { leg_distance, leg_time } = path.details;
+
+                    return {
+                        decodedPoints,
+                        leg_distance,
+                        leg_time
+                    };
+                } else {
+                    console.error('No paths found in the response');
+                }
+            } else {
+                console.error('Request failed');
             }
-            function handleRouting() {
-                const coordinateBatches = createCoordinateBatches();
-                makeDirectionsRequests(coordinateBatches);
-            }
-            handleRouting();
+        } catch (error) {
+            console.error('Error fetching route:', error);
+        }
+        return { decodedPoints: [], leg_distance: [], leg_time: [] };
+    }
+
+    async function getTotalSums(leg_distance, leg_time) {
+        let totalDistance = 0;
+        let totalDuration = 0;
+        let start_indexes = [];
+        let search_leg_distance = [];
+        let search_leg_time = [];
+
+        if (leg_distance.length > 1) {
+            leg_distance.forEach((d_leg, d_index) => {
+                totalDistance += (d_leg[2] / 1000);
+                if (d_leg[2] > 5000) {
+                    start_indexes.push(d_index);
+                    search_leg_distance.push((d_leg[2] / 1000).toFixed(2));
+                }
+            });
+            totalDistance = totalDistance.toFixed(2);
+        }
+        if (leg_time.length > 1) {
+            leg_time.forEach((d_leg, d_index) => {
+                totalDuration += (d_leg[2]);
+                if (start_indexes.includes(d_index)) {
+                    search_leg_time.push(convertMillisecondsToHours(d_leg[2]));
+                }
+            });
+            totalDuration = totalDuration.toFixed(2);
+        }
+        return { totalDistance, totalDuration, start_indexes, search_leg_distance, search_leg_time };
+    }
+
+    function getCoordinates(batch, start_indexes) {
+        let search_cordinates = [];
+        if (start_indexes.length > 1) {
+            start_indexes.forEach((value) => {
+                let start_cord = batch[value];
+                let end_cord = batch[value + 1];
+
+                search_cordinates.push({ end_cord, start_cord });
+                return;
+            });
+            return search_cordinates;
         }
         else {
-            totals({
-                totalDistance: "0.0",
-                // totalDuration: (DurationCount / 3600).toFixed(2)
-                totalDuration: "0.0"
-            })
-            SendAddress(timelinesum);
+            return search_cordinates;
         }
     }
 
-    return (
-        <div className='map'>
-            <GoogleMapReact
-                bootstrapURLKeys={{
-                    key: "AIzaSyA5uemAs2WR9KQkdVReA9VRcaZ8jA6ZLAM"
-                }}
-                key={JSON.stringify(mapData)}
-                defaultCenter={intitialcenter}
-                defaultZoom={6}
-                yesIWantToUseGoogleMapApiInternals={true}
-                onGoogleApiLoaded={({ map, maps }) => handleApiLoaded(map, maps)}
-            >
-            </GoogleMapReact>
-        </div>
-    )
-}
+    function getUniqueCordinates(search_cord) {
+        const coordinatesSet = new Set();
+        const uniqueCoordinates = [];
 
-export default Map
+        search_cord.forEach(({ start_cord, end_cord }) => {
+            const startCoord = `${start_cord.lat},${start_cord.lng}`;
+            const endCoord = `${end_cord.lat},${end_cord.lng}`;
+
+            if (!coordinatesSet.has(startCoord)) {
+                coordinatesSet.add(startCoord);
+                uniqueCoordinates.push([start_cord.lat, start_cord.lng]);
+            }
+
+            if (!coordinatesSet.has(endCoord)) {
+                coordinatesSet.add(endCoord);
+                uniqueCoordinates.push([end_cord.lat, end_cord.lng]);
+            }
+        });
+        return uniqueCoordinates;
+    }
+
+    async function fetchAddresses(coordinates) {
+        if (coordinates.length === 0) return [];
+
+        const results = [];
+        for (const [lat, lon] of coordinates) {
+            try {
+                await delay(500);
+                const data = await limit(() => getReverseGeocoding(lat, lon));
+                results.push(data);
+            } catch (error) {
+                console.error(`Error processing (${lat}, ${lon}):`, error);
+                results.push({ display_name: 'Address not found' });
+            }
+        }
+        return results;
+    }
+
+    const getReverseGeocoding = async (lat, lon) => {
+        const apiKey = 'pk.14a9bcc9b8f334ffeea59dfcb7851aab';
+        const url = `https://us1.locationiq.com/v1/reverse.php?key=${apiKey}&lat=${lat}&lon=${lon}&format=json`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            if (!data.display_name) {
+                throw new Error('Address not found');
+            }
+            return data;
+        } catch (error) {
+            console.error('Error fetching reverse geocoding data:', error);
+            return null;
+        }
+    };
+
+    const mapAddressesBackToData = (data, coordToAddressMap) => {
+        return data.map(({ start_cord, end_cord }) => ({
+            start_cord,
+            end_cord,
+            start_address: coordToAddressMap.get(`${start_cord.lat},${start_cord.lng}`),
+            end_address: coordToAddressMap.get(`${end_cord.lat},${end_cord.lng}`)
+        }));
+    };
+
+    return (
+        <MapContainer center={intitialcenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
+            <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+            />
+            {showRoute && <RoutePolyline route={route} waypoints={waypoints} initialCenter={intitialcenter} initialZoom={6} />}
+        </MapContainer>
+    );
+};
+
+export default MapComponent;

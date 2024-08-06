@@ -14,7 +14,9 @@ const Navigation = ({ props1, openCalender }) => {
     // const { updatedData } = useContext(MapContext);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        showCalendersHandler()
+        if (openCalender > 0) {
+            setShowCalender(true);
+        }
         handleDateformat(cal);
         // fetchAxiosdata();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,10 +63,7 @@ const Navigation = ({ props1, openCalender }) => {
     }
 
     const showCalendersHandler = async () => {
-
-        setShowCalender((prevState) => {
-            return !prevState
-        });
+        setShowCalender(prevState => !prevState);
     }
     const handleCalendar = async (event) => {
         setCal(event);
