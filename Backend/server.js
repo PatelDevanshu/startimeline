@@ -167,6 +167,31 @@ app.post("/users/userData", (req, res) => {
     })
 })
 
+app.post("/users/addData", (req, res) => {
+    const { lng, lat, date, assigned_id, name } = req.body;
+
+    const query = `
+        INSERT INTO \`dt_userstimeline1\` (\`name\`, \`date_entered\`, \`date_modified\`, \`assigned_user_id\`, \`longitude\`, \`latitude\`, \`locationdatetime\`)
+        VALUES ('${name}', '${date}', '${date}', ${assigned_id}, '${lng}', '${lat}', '${date}');
+    `;
+    db.query(query, (error, results) => {
+        if (error) {
+            console.error('Error to insert data:', error);
+            res.status(500).json({ error: 'Failed to insert user data' });
+            return;
+        }
+        else {
+            if (results) {
+                res.json("Data inserted successfully");
+            }
+            else {
+                res.json("Error inserting..");
+            }
+            return;
+        }
+    })
+})
+
 // Define your API endpoint
 app.get('/api/filterdata', (req, res) => {
     // Read userdata.json file

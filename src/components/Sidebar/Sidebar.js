@@ -23,7 +23,6 @@ function Sidebar() {
     fetch("https://startimeline.onrender.com/users/useriddata")
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR") {
           alert("Try to REFRESH or try after sometime. Server stopped unappropriately.")
         }
@@ -45,7 +44,6 @@ function Sidebar() {
   let uiddata;
   if (iddata.length > 1) {
     uiddata = iddata.map((d) => {
-      // console.log("in iddata", d);
       return { id: d.id, uname: d.user_name };
     });
   }
