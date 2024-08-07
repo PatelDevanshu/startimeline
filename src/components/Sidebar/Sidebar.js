@@ -16,25 +16,37 @@ function Sidebar() {
   const [userName, setUserName] = useState(null)
   const [renderTimeline, setRenderTimeline] = useState(null)
   const [openCalender, setOpenCalender] = useState(0);
-  const { addressdata, totalSum, loader, error } = useContext(MapContext);
+  const { addressdata, totalSum, handler } = useContext(MapContext);
   const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     fetch("https://startimeline.onrender.com/users/useriddata")
       .then((res) => res.json())
-      .then((data) => setIddata(data))
+      .then((data) => {
+        if (data.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR") {
+          alert("Try to REFRESH or try after sometime. Server stopped unappropriately.")
+        }
+        if (data) {
+          setIddata(data);
+        }
+      }
+      )
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
-    setRenderTimeline(addressdata);
+    if (addressdata) {
+      setRenderTimeline(addressdata);
+    }
   }, [addressdata]);
 
   let arrUser = [{ id: "", uname: "" }];
-  let uiddata = iddata.map((d) => {
-    // console.log("in iddata", d);
-    return { id: d.id, uname: d.user_name };
-  });
+  let uiddata;
+  if (iddata.length > 1) {
+    uiddata = iddata.map((d) => {
+      return { id: d.id, uname: d.user_name };
+    });
+  }
   arrUser = [].concat(uiddata);
   const handleUserid = async (event) => {
     setOpenCalender((prevState) => prevState = prevState + 1)
@@ -108,10 +120,11 @@ function Sidebar() {
         </div>
       </div>}
 
-      {loader ? <div className='timeline_msg'>Loading...</div> : ''}
-      {error ? <div className='timeline_msg'>User had travlled within 5kms.</div> : ''}
+      {handler.loader ? <div className='timeline_msg'>Loading...</div> : ''}
+      {handler.error ? <div className='timeline_msg'>User had travlled within 5kms.</div> : ''}
+      {handler.notfound ? <div className='timeline_msg'>No data found for this date.</div> : ''}
       <ul className='timeline'>
-        {renderTimeline && !loader && renderTimeline.map((d) =>
+        {renderTimeline && !handler.loader && !handler.notfound && renderTimeline.map((d) =>
           <Timeline key={d.id} startAddress={d.startAddress} endAddress={d.endAddress} duration={d.duration} distance={d.distance} />
         )}
       </ul>
@@ -119,4 +132,4 @@ function Sidebar() {
   )
 }
 
-export default Sidebar
+export default Sidebar;
