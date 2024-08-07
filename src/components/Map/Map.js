@@ -13,7 +13,7 @@ const MapComponent = () => {
     const [mapData, setMapData] = useState([]);
     const [waypoints, setWaypoints] = useState([]);
     const [showRoute, setShowRoute] = useState(false);
-    const { timelineData, SendAddress, totals, SetLoader, SetError } = useContext(MapContext);
+    const { timelineData, SendAddress, totals, SetHandler } = useContext(MapContext);
     // const intitialcenter = { lat: 20.39012149793167, lng: 72.90738269251017 }
     const intitialcenter = { lat: 20.5937, lng: 78.9629 }
     const limit = pLimit(2);
@@ -36,7 +36,7 @@ const MapComponent = () => {
 
         let path = [...userpath] || [];
 
-        if (path.length <= 1) {
+        if (path.length === 0) {
             totals({
                 totalDistance: '0.0',
                 totalDuration: '0.0'
@@ -44,13 +44,34 @@ const MapComponent = () => {
             setRoute([]);
             setShowRoute(false);
             SendAddress([]);
-            SetError(false);
-            SetLoader(false);
+            SetHandler({
+                error: false,
+                loader: false,
+                notfound: true
+            });
+            return;
+        }
+        // console.log("path", path);
+        else if (path.length <= 1) {
+            totals({
+                totalDistance: '0.0',
+                totalDuration: '0.0'
+            })
+            setRoute([]);
+            setShowRoute(false);
+            SendAddress([]);
+            SetHandler({
+                error: false,
+                loader: false,
+            })
             return;
         }
         else {
-            SetError(false);
-            SetLoader(false);
+            SetHandler({
+                loader: false,
+                error: false,
+                notfound: false
+            })
             setWaypoints(path);
 
             const batchSize = 80;
@@ -103,7 +124,9 @@ const MapComponent = () => {
                 const uniqueCoordinates = getUniqueCordinates(getCords_search_indexes);
 
                 if (uniqueCoordinates.length > 0) {
-                    SetLoader(true);
+                    SetHandler({
+                        loader: true
+                    })
                     const addressesArray = await fetchAddresses(uniqueCoordinates);
 
                     const coordToAddressMap = new Map();
@@ -123,13 +146,16 @@ const MapComponent = () => {
                     }));
 
                     SendAddress(timelineData);
-                    SetLoader(false);
+                    SetHandler({
+                        loader: false
+                    })
                 }
             }
-
             else {
                 SendAddress([]);
-                SetError(true);
+                SetHandler({
+                    error: true,
+                })
             }
             return;
         }

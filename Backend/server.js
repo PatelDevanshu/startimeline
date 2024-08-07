@@ -20,22 +20,54 @@ const port = process.env.DB_PORT || 4001;
 console.log("port", port);
 console.log("dbDatabase", dbDatabase);
 
-const db = sql.createConnection({
-    host: dbHost,
-    user: dbUser,
-    password: dbPassword,
-    database: dbDatabase,
-    dateStrings: true
-})
-db.connect((err) => {
-    if (err) {
-        console.log("Error in connection");
-        return;
-    }
-    else {
-        console.log("Connected to Database");
-    }
-});
+// const db = sql.createConnection({
+//     host: dbHost,
+//     user: dbUser,
+//     password: dbPassword,
+//     database: dbDatabase,
+//     dateStrings: true
+// })
+// db.connect((err) => {
+//     if (err) {
+//         console.log("Error in connection");
+//         return;
+//     }
+//     else {
+//         console.log("Connected to Database");
+//     }
+// });
+
+function handleDisconnect() {
+    const db = sql.createConnection({
+        host: dbHost,
+        user: dbUser,
+        password: dbPassword,
+        database: dbDatabase,
+        dateStrings: true
+    });
+
+    db.connect((err) => {
+        if (err) {
+            console.error('Error connecting to database:', err);
+            setTimeout(handleDisconnect, 2000); // Retry connection after 2 seconds
+        } else {
+            console.log('Connected to Database');
+        }
+    });
+
+    db.on('error', (err) => {
+        console.error('Database error:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            handleDisconnect(); // Reconnect when the connection is lost
+        } else {
+            throw err;
+        }
+    });
+
+    return db;
+}
+
+const db = handleDisconnect();
 
 app.post("/auth/login", (req, res) => {
     const { username, password } = req.body;

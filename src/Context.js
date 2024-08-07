@@ -6,8 +6,11 @@ export const MapProvider = ({ children }) => {
     const [addressdata, setAddressdata] = useState(null);
     const [totalSum, setTotalSum] = useState({});
     const [timelineData, setTimelineData] = useState(['']);
-    const [loader, setLoader] = useState(false);
-    const [error, setError] = useState(false);
+    const [handler, setHandler] = useState({
+        loader: false,
+        error: false,
+        notfound: false
+    })
 
     // useEffect(() => {
     //     // fetch("https://crm.star-ind.com/index.php?entryPoint=dtTimeline")
@@ -36,15 +39,12 @@ export const MapProvider = ({ children }) => {
     const SetData = (data) => {
         setTimelineData(data);
     }
-    const SetLoader = (data) => {
-        setLoader(data);
-    }
-    const SetError = (data) => {
-        setError(data);
+    const SetHandler = (data) => {
+        setHandler(data);
     }
 
     return (
-        <MapContext.Provider value={{ timelineData, SendAddress, addressdata, totals, totalSum, SetData, SetLoader, loader, SetError, error }}>
+        <MapContext.Provider value={{ timelineData, SendAddress, addressdata, totals, totalSum, SetData, SetHandler, handler }}>
             {children}
         </MapContext.Provider>
     );

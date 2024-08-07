@@ -73,8 +73,11 @@ const Navigation = ({ props1, openCalender }) => {
 
     return (
         <div className='navigation'>
+            <div className='navigation-heading'>
+                Please Select a date from the calendar
+            </div>
             <button className='navigation-button' onClick={showCalendersHandler}>Select Date  <img src={calenderLogo} alt="" /> </button>
-            <Calendar className={showCalender ? "navigation-calender active" : "navigation-calender"} onChange={handleCalendar} value={cal} />
+            <Calendar className={showCalender ? "navigation-calender active" : "navigation-calender"} onChange={handleCalendar} minDate={new Date('07-29-2024')} maxDate={new Date()} value={cal} />
         </div>
     )
 }
