@@ -8,7 +8,7 @@ import { MapContext } from '../../Context';
 
 const Navigation = ({ props1, openCalender }) => {
     const [showCalender, setShowCalender] = useState(true)
-    const [cal, setCal] = useState(new Date());
+    const [cal, setCal] = useState(new Date('2024-09-30'));
     const { SetData } = useContext(MapContext);
 
     // const { updatedData } = useContext(MapContext);
@@ -77,7 +77,7 @@ const Navigation = ({ props1, openCalender }) => {
                 Please Select a date from the calendar
             </div>
             <button className='navigation-button' onClick={showCalendersHandler}>Select Date  <img src={calenderLogo} alt="" /> </button>
-            <Calendar className={showCalender ? "navigation-calender active" : "navigation-calender"} onChange={handleCalendar} minDate={new Date('07-29-2024')} maxDate={new Date()} value={cal} />
+            <Calendar className={showCalender ? "navigation-calender active" : "navigation-calender"} onChange={handleCalendar} activeStartDate={new Date('2024-09-30')} minDate={new Date('07-29-2024')} maxDate={new Date('09-30-2024')} value={cal} />
         </div>
     )
 }
